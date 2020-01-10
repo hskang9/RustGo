@@ -2,6 +2,8 @@ use crate::lexer::*;
 use crate::token::*;
 use crate::ast::*;
 
+
+#[derive(Debug, Clone)]
 pub struct Parser {
     lexer: Lexer,
     cur_token: Option<Token>,
@@ -10,7 +12,7 @@ pub struct Parser {
 }
 
 impl Parser {
-    pub fn new(&mut self, l: Lexer) -> Parser<T> {
+    pub fn new(&mut self, l: Lexer) -> Parser {
         let mut p = Parser{
             lexer: l,
             cur_token: None,
@@ -81,11 +83,11 @@ impl Parser {
         return Some(stmt);
     }
 
-    pub fn is_cur_token(self, t: TokenType) -> bool {
+    pub fn is_cur_token(&self, t: TokenType) -> bool {
         return self.cur_token.clone().unwrap().r#type == t;
     }
 
-    pub fn is_peek_token(self, t: TokenType) -> bool {
+    pub fn is_peek_token(&self, t: TokenType) -> bool {
         return self.peek_token.clone().unwrap().r#type == t;
     }
 
@@ -99,7 +101,7 @@ impl Parser {
     }
 
     pub fn errors(&self) -> Vec<String> {
-        return self.errors;
+        return self.errors.clone();
     }
 
     pub fn peek_error(&mut self, t: TokenType) {
