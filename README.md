@@ -1,5 +1,5 @@
 # Namu
-Programming language for making a programming language
+Programming language for learning how to create one
 
 # Credits
 
