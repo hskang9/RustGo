@@ -87,7 +87,6 @@ impl Lexer {
                     let token_literal = self.read_number().to_string();
                     return self.new_token(INT, token_literal);
                 } else {
-                    panic!("Invalid syntax at {:?}", self.read_position);
                     return self.new_token(ILLEGAL, ch.to_string());
                 }
             }
