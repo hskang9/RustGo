@@ -1,6 +1,9 @@
-# rust-monkey
+# Namu
+Programming language for making a programming language
 
-A rust implementation of making a programming language called "monkey" from the book "Writing an interpreter in Go" by Thorsten Ball.
+# Credits
+
+Namu is based on rust implementation of making a programming language called "monkey" from the book "Writing an interpreter in Go" by Thorsten Ball.
 
 --- 
 # License
