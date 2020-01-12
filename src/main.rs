@@ -1,11 +1,10 @@
 #[macro_use]
 extern crate lazy_static;
 
-
-pub mod token;
-pub mod lexer;
 pub mod ast;
+pub mod lexer;
 pub mod parser;
+pub mod token;
 
 use linefeed::{Interface, ReadResult};
 use std::io;
@@ -18,8 +17,8 @@ fn main() -> io::Result<()> {
   reader.set_prompt(">> ")?;
 
   while let ReadResult::Input(input) = reader.read_line()? {
-      println!("got input {:?}", input.clone());
-      print_token(input);
+    println!("got input {:?}", input.clone());
+    print_token(input);
   }
 
   println!("Goodbye.");
@@ -28,14 +27,12 @@ fn main() -> io::Result<()> {
 }
 
 pub fn print_token(input: String) {
-  let mut lexer = lexer::Lexer::new(input);
-    
-  loop {
-    let next_token = lexer.next_token();
-    println!("{:?} {:?}", lexer, next_token); 
-    if next_token.r#type == token::EOF {
+  let mut lexer = lexer::Lexer::new(input.clone());
+  for i in 0..input.len() {
+    if lexer.ch == '\0' {
       break;
     }
+    let next_token = lexer.next_token();
+    println!("{:?} {:?}", lexer, next_token);
   }
 }
-
