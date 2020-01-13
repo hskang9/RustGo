@@ -2,9 +2,13 @@ use crate::token::*;
 
 #[derive(Debug, Clone)]
 pub struct Lexer {
+    /// input string of code
     pub input: String,
+    /// current read position of lexer
     pub position: usize,
+    /// position to read in string
     pub read_position: usize,
+    /// next character to read
     pub ch: char,
 }
 
@@ -87,6 +91,7 @@ impl Lexer {
                     let token_literal = self.read_number().to_string();
                     return self.new_token(INT, token_literal);
                 } else {
+                    self.read_char();
                     return self.new_token(ILLEGAL, ch.to_string());
                 }
             }

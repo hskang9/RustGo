@@ -1,23 +1,22 @@
+use crate::ast::*;
 use crate::lexer::*;
 use crate::token::*;
-use crate::ast::*;
-
 
 #[derive(Debug, Clone)]
 pub struct Parser {
     lexer: Lexer,
     cur_token: Option<Token>,
     peek_token: Option<Token>,
-    errors: Vec<String>
+    errors: Vec<String>,
 }
 
 impl Parser {
-    pub fn new(&mut self, l: Lexer) -> Parser {
-        let mut p = Parser{
+    pub fn new(l: Lexer) -> Parser {
+        let mut p = Parser {
             lexer: l,
             cur_token: None,
             peek_token: None,
-            errors: vec!{}
+            errors: vec![],
         };
         p.next_token();
         p.next_token();
@@ -29,11 +28,8 @@ impl Parser {
         self.peek_token = Some(self.lexer.next_token());
     }
 
-    // TODO: return Program<T>
-    pub fn parse_program(&mut self) -> Option<Program>  {
-        let mut program = Program{
-            statements: vec!{}
-        };
+    pub fn parse_program(&mut self) -> Program {
+        let mut program = Program { statements: vec![] };
 
         while self.cur_token.clone().unwrap().r#type != EOF {
             let stmt = self.parse_statement();
@@ -43,33 +39,40 @@ impl Parser {
             self.next_token();
         }
 
-        return Some(program);
+        return program;
     }
 
     pub fn parse_statement(&mut self) -> Option<Box<dyn Statement>> {
         match self.cur_token.clone().unwrap().r#type {
             LET => {
                 let a = self.parse_let_statement();
-                Some(Box::new(a.unwrap()))
-            },
-            _ => None
+                if a.is_some() {
+                    Some(Box::new(a.unwrap()))
+                } else {
+                    None
+                }
+            }
+            _ => None,
         }
     }
 
     pub fn parse_let_statement(&mut self) -> Option<LetStatement> {
-        let mut stmt = LetStatement{
+        let mut stmt = LetStatement {
             token: self.cur_token.clone().unwrap(),
             name: None,
-            value: None
+            value: None,
         };
 
+        if !self.expect_peek(IDENT) {
+            return None;
+        }
 
-        stmt.name = Some(Identifier{
+        stmt.name = Some(Identifier {
             token: self.cur_token.clone(),
-            value: self.cur_token.clone().unwrap().literal
+            value: self.cur_token.clone().unwrap().literal,
         });
 
-        if !self.expect_peek(IDENT) {
+        if !self.expect_peek(ASSIGN) {
             return None;
         }
 
@@ -79,7 +82,6 @@ impl Parser {
             self.next_token();
         }
 
-        
         return Some(stmt);
     }
 
@@ -96,6 +98,7 @@ impl Parser {
             self.next_token();
             return true;
         } else {
+            self.peek_error(t);
             return false;
         }
     }
@@ -105,7 +108,11 @@ impl Parser {
     }
 
     pub fn peek_error(&mut self, t: TokenType) {
-        let msg = format!("expected next token to be {:?}, got {:?} instead", t, self.peek_token.clone().unwrap().r#type);
+        let msg = format!(
+            "expected next token to be {:?}, got {:?} instead",
+            t,
+            self.peek_token.clone().unwrap().r#type
+        );
         self.errors.push(msg);
     }
 }
