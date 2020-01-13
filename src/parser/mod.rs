@@ -45,9 +45,17 @@ impl Parser {
     pub fn parse_statement(&mut self) -> Option<Box<dyn Statement>> {
         match self.cur_token.clone().unwrap().r#type {
             LET => {
-                let a = self.parse_let_statement();
-                if a.is_some() {
-                    Some(Box::new(a.unwrap()))
+                let stmt = self.parse_let_statement();
+                if stmt.is_some() {
+                    Some(Box::new(stmt.unwrap()))
+                } else {
+                    None
+                }
+            }
+            RETURN => {
+                let stmt = self.parse_return_statement();
+                if stmt.is_some() {
+                    Some(Box::new(stmt.unwrap()))
                 } else {
                     None
                 }
@@ -75,6 +83,23 @@ impl Parser {
         if !self.expect_peek(ASSIGN) {
             return None;
         }
+
+        // TODO: We're skipping the expressions until we
+        // encounter a semicolon
+        while !self.is_cur_token(SEMICOLON) {
+            self.next_token();
+        }
+
+        return Some(stmt);
+    }
+
+    pub fn parse_return_statement(&mut self) -> Option<ReturnStatement> {
+        let stmt = ReturnStatement {
+            token: self.cur_token.clone().unwrap(),
+            return_value: None,
+        };
+
+        self.next_token();
 
         // TODO: We're skipping the expressions until we
         // encounter a semicolon

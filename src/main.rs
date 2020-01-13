@@ -45,9 +45,10 @@ mod tests {
 
   #[test]
   fn test_let_statements() {
-    let input = "let x_ = 5;
+    let input = "let x = 5;
         let y = 10;
         let foobar = 838383;
+        return ;
         ";
 
     let l = lexer::Lexer::new(input.to_string());
