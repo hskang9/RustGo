@@ -1,6 +1,7 @@
 use crate::ast::*;
 use crate::lexer::*;
 use crate::token::*;
+use std::str;
 
 #[derive(Debug, Clone)]
 pub struct Parser {
@@ -135,8 +136,8 @@ impl Parser {
     pub fn peek_error(&mut self, t: TokenType) {
         let msg = format!(
             "expected next token to be {:?}, got {:?} instead",
-            t,
-            self.peek_token.clone().unwrap().r#type
+            str::from_utf8(t),
+            str::from_utf8(self.peek_token.clone().unwrap().r#type)
         );
         self.errors.push(msg);
     }

@@ -19,7 +19,7 @@ fn main() -> io::Result<()> {
 
   while let ReadResult::Input(input) = reader.read_line()? {
     println!("got input {:?}", input.clone());
-    print_token(input);
+    print_token(input.as_bytes().to_vec());
   }
 
   println!("Goodbye.");
@@ -27,9 +27,9 @@ fn main() -> io::Result<()> {
   Ok(())
 }
 
-pub fn print_token(input: String) {
+pub fn print_token(input: Vec<u8>) {
   let mut lexer = lexer::Lexer::new(input.clone());
-  for _i in 0..input.len() {
+  for _i in 0..input.clone().len() {
     if lexer.read_position > input.len() {
       break;
     } else {
@@ -45,13 +45,13 @@ mod tests {
 
   #[test]
   fn test_let_statements() {
-    let input = "let x = 5;
+    let input = b"let x 5;
         let y = 10;
         let foobar = 838383;
         return ;
         ";
 
-    let l = lexer::Lexer::new(input.to_string());
+    let l = lexer::Lexer::new(input.to_vec());
     let mut p = parser::Parser::new(l);
 
     let program = p.parse_program();

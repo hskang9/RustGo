@@ -1,16 +1,16 @@
 use crate::token::*;
 
 pub trait Node {
-    fn token_literal(&self) -> String;
+    fn token_literal(&self) -> Vec<u8>;
 }
 
 pub trait Statement {
-    fn token_literal(&self) -> String;
+    fn token_literal(&self) -> Vec<u8>;
     fn statement_node(&self);
 }
 
 pub trait Expression {
-    fn token_literal(&self) -> String;
+    fn token_literal(&self) -> Vec<u8>;
     fn expression_node(&self);
 }
 
@@ -23,11 +23,11 @@ pub struct Program {
 }
 
 impl Statement for Program {
-    fn token_literal(&self) -> String {
+    fn token_literal(&self) -> Vec<u8> {
         if self.statements.len() > 0 {
             return self.statements[0].token_literal();
         } else {
-            return "".to_string();
+            return [].to_vec();
         }
     }
     fn statement_node(&self) {}
@@ -41,8 +41,8 @@ pub struct LetStatement {
 }
 
 impl Statement for LetStatement {
-    fn token_literal(&self) -> String {
-        return self.token.literal.to_string();
+    fn token_literal(&self) -> Vec<u8> {
+        return self.token.literal.clone();
     }
     fn statement_node(&self) {}
 }
@@ -50,11 +50,11 @@ impl Statement for LetStatement {
 #[derive(Clone, PartialEq)]
 pub struct Identifier {
     pub token: Option<Token>,
-    pub value: String,
+    pub value: Vec<u8>,
 }
 
 impl Expression for Identifier {
-    fn token_literal(&self) -> String {
+    fn token_literal(&self) -> Vec<u8> {
         return self.token.clone().unwrap().literal;
     }
     fn expression_node(&self) {}
@@ -67,8 +67,8 @@ pub struct ReturnStatement {
 }
 
 impl Statement for ReturnStatement {
-    fn token_literal(&self) -> String {
-        return self.token.literal.to_string();
+    fn token_literal(&self) -> Vec<u8> {
+        return self.token.literal.clone();
     }
     fn statement_node(&self) {}
 }
@@ -76,12 +76,12 @@ impl Statement for ReturnStatement {
 // Expression statement
 pub struct ExpressionStatement {
     pub token: Token,
-    pub Expression: Option<Box<dyn Expression>>,
+    pub expression: Option<Box<dyn Expression>>,
 }
 
 impl Statement for ExpressionStatement {
-    fn token_literal(&self) -> String {
-        return self.token.literal.to_string();
+    fn token_literal(&self) -> Vec<u8> {
+        return self.token.literal.clone();
     }
     fn statement_node(&self) {}
 }
