@@ -49,9 +49,9 @@ impl Statement for Program {
     }
     fn statement_node(&self) {}
     fn string(&self) -> String {
-        let mut out = "";
-        for s in self.statements {
-            [out, &s.token_literal()].concat();
+        let mut out = "".to_string();
+        for s in self.statements.clone() {
+            out.push_str(&s.token_literal());
         }
         return out.to_string();
     }
