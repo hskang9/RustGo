@@ -8,6 +8,7 @@ pub trait Node {
 }
 */
 
+/// Generic Statements (e.g. let a = b) interface
 pub trait Statement {
     fn token_literal(&self) -> String;
     fn statement_node(&self);
@@ -15,12 +16,14 @@ pub trait Statement {
     fn box_clone(&self) -> Box<dyn Statement>;
 }
 
+/// Clone for trait object 
 impl Clone for Box<dyn Statement> {
     fn clone(&self) -> Box<dyn Statement> {
         self.box_clone()
     }
 }
 
+/// Expressions (e.g. {}, ()) interface
 pub trait Expression {
     fn token_literal(&self) -> String;
     fn expression_node(&self);
@@ -28,12 +31,15 @@ pub trait Expression {
     fn box_clone(&self) -> Box<dyn Expression>;   
 }
 
+
+/// Clone for trait object 
 impl Clone for Box<dyn Expression> {
     fn clone(&self) -> Box<dyn Expression> {
         self.box_clone()
     }
 }
 
+/// Program after reading the code
 #[derive(Clone)]
 pub struct Program {
     pub statements: Vec<Box<dyn Statement>>,
@@ -61,7 +67,7 @@ impl Statement for Program {
 }
 
 
-// Let Statment
+/// Let Statment
 #[derive(Clone)]
 pub struct LetStatement {
     pub token: Token,
@@ -88,6 +94,7 @@ impl Statement for LetStatement {
     }
 }
 
+/// Identifier, your variable name
 #[derive(Clone)]
 pub struct Identifier {
     pub token: Option<Token>,
