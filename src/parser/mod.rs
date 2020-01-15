@@ -14,7 +14,7 @@ iota!{
     ,CALL
 }
 
-type PrefixParseFn = fn() -> Box<dyn Expression>;
+type PrefixParseFn = for<'r> fn(&'r Parser) -> Box<dyn Expression>;
 type InfixParseFn = fn(Box<dyn Expression>) -> Box<dyn Expression>;
 
 #[derive(Clone)]
@@ -37,7 +37,7 @@ impl Parser {
             prefix_parse_fns: HashMap::new(),
             infix_parse_fns: HashMap::new()
         };
-        let callback: PrefixParseFn = p.parse_identifier;
+        let callback: PrefixParseFn = Parser::parse_identifier;
         p.register_prefix(IDENT, callback);
         p.next_token();
         p.next_token();
@@ -150,7 +150,7 @@ impl Parser {
         return Some(stmt);
     }
 
-    pub fn parse_expression_statement(&self) -> Option<ExpressionStatement> {
+    pub fn parse_expression_statement(&mut self) -> Option<ExpressionStatement> {
         let stmt = ExpressionStatement{
             token: self.cur_token.clone().unwrap(),
             expression: self.parse_expression(LOWEST)
@@ -169,7 +169,7 @@ impl Parser {
             return None;
         }
         let prefix = self.prefix_parse_fns[self.cur_token.clone().unwrap().r#type];
-        let left_exp = prefix();
+        let left_exp = prefix(self);
         return Some(left_exp);
     }
     
