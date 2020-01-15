@@ -1,13 +1,30 @@
 use crate::ast::*;
 use crate::lexer::*;
 use crate::token::*;
+use iota::iota;
+use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+iota!{
+    const LOWEST: u8 = 1;
+    ,EQUALS
+    ,LESSGREATER
+    ,SUM
+    ,PRODUCT
+    ,PREFIX
+    ,CALL
+}
+
+type PrefixParseFn = fn() -> Box<dyn Expression>;
+type InfixParseFn = fn(Box<dyn Expression>) -> Box<dyn Expression>;
+
+#[derive(Clone)]
 pub struct Parser {
     lexer: Lexer,
     cur_token: Option<Token>,
     peek_token: Option<Token>,
     errors: Vec<String>,
+    prefix_parse_fns: HashMap<TokenType, PrefixParseFn>,
+    infix_parse_fns: HashMap<TokenType, InfixParseFn>
 }
 
 impl Parser {
@@ -17,7 +34,11 @@ impl Parser {
             cur_token: None,
             peek_token: None,
             errors: vec![],
+            prefix_parse_fns: HashMap::new(),
+            infix_parse_fns: HashMap::new()
         };
+        let callback: PrefixParseFn = p.parse_identifier;
+        p.register_prefix(IDENT, *&callback);
         p.next_token();
         p.next_token();
         return p;
@@ -26,6 +47,18 @@ impl Parser {
     pub fn next_token(&mut self) {
         self.cur_token = self.peek_token.clone();
         self.peek_token = Some(self.lexer.next_token());
+    }
+
+    pub fn register_prefix(&mut self, token: TokenType, prefix_fn: PrefixParseFn) {
+        self.prefix_parse_fns.insert(token, prefix_fn);
+    }
+
+    pub fn register_infix(&mut self, token: TokenType, infix_fn: InfixParseFn) {
+        self.infix_parse_fns.insert(token, infix_fn);
+    }
+
+    pub fn parse_identifier(&self) -> Box<dyn Expression> {
+        return Box::new(Identifier{token: self.cur_token.clone(), value: self.cur_token.clone().unwrap().literal});
     }
 
     pub fn parse_program(&mut self) -> Program {
@@ -60,7 +93,14 @@ impl Parser {
                     None
                 }
             }
-            _ => None,
+            _ => {
+                let stmt = self.parse_expression_statement();
+                if stmt.is_some() {
+                    Some(Box::new(stmt.unwrap()))
+                } else {
+                    None
+                }
+            }
         }
     }
 
@@ -109,6 +149,30 @@ impl Parser {
 
         return Some(stmt);
     }
+
+    pub fn parse_expression_statement(&self) -> Option<ExpressionStatement> {
+        let stmt = ExpressionStatement{
+            token: self.cur_token.clone().unwrap(),
+            expression: self.parse_expression(LOWEST)
+        };
+
+        if self.is_peek_token(SEMICOLON) {
+            self.next_token();
+        }
+
+        return Some(stmt);
+    }
+
+    
+    pub fn parse_expression(&self, precedence: u8) -> Option<Box<dyn Expression>> {
+        if self.prefix_parse_fns.contains_key(self.cur_token.clone().unwrap().r#type) {
+            return None;
+        }
+        let prefix = self.prefix_parse_fns[self.cur_token.clone().unwrap().r#type];
+        let left_exp = prefix();
+        return Some(left_exp);
+    }
+    
 
     pub fn is_cur_token(&self, t: TokenType) -> bool {
         return self.cur_token.clone().unwrap().r#type == t;
