@@ -38,7 +38,7 @@ impl Parser {
             infix_parse_fns: HashMap::new()
         };
         let callback: PrefixParseFn = p.parse_identifier;
-        p.register_prefix(IDENT, *&callback);
+        p.register_prefix(IDENT, callback);
         p.next_token();
         p.next_token();
         return p;
