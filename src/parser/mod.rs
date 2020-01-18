@@ -70,7 +70,7 @@ impl Parser {
         
         let value = match self.cur_token.clone().unwrap().literal.parse::<i64>() {
             Ok(v) => Some(v),
-            Err(e) => {
+            Err(_e) => {
                 let msg = format!("could not parse {:?} as integer", self.cur_token.clone().unwrap().literal);
                 self.errors.push(msg);
                 None
@@ -185,8 +185,8 @@ impl Parser {
     }
 
     
-    pub fn parse_expression(&mut self, precedence: u8) -> Option<Box<dyn Expression>> {
-        if self.prefix_parse_fns.contains_key(self.cur_token.clone().unwrap().r#type) {
+    pub fn parse_expression(&mut self, _precedence: u8) -> Option<Box<dyn Expression>> {
+        if !self.prefix_parse_fns.contains_key(self.cur_token.clone().unwrap().r#type) {
             return None;
         }
         println!("{:?}", self.cur_token.clone().unwrap().r#type);
