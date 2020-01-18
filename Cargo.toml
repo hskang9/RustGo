@@ -1,5 +1,5 @@
 [package]
-name = "rust-monkey"
+name = "namu"
 version = "0.1.0"
 authors = ["hskang9 <hskang9@gmail.com>"]
 edition = "2018"
@@ -11,6 +11,7 @@ lazy_static = "1.4.0"
 linefeed = "0.6"
 colored = "1.9.2"
 iota = "0.2"
+traitcast = "0.1.3"
 
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

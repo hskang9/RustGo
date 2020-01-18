@@ -14,7 +14,7 @@ iota!{
     ,CALL
 }
 
-type PrefixParseFn = for<'r> fn(&'r Parser) -> Box<dyn Expression>;
+type PrefixParseFn = for<'r> fn(&'r mut Parser) -> Box<dyn Expression>;
 type InfixParseFn = fn(Box<dyn Expression>) -> Box<dyn Expression>;
 
 #[derive(Clone)]
@@ -37,8 +37,8 @@ impl Parser {
             prefix_parse_fns: HashMap::new(),
             infix_parse_fns: HashMap::new()
         };
-        let callback: PrefixParseFn = Parser::parse_identifier;
-        p.register_prefix(IDENT, callback);
+        p.register_prefix(IDENT, Parser::parse_identifier);
+        p.register_prefix(INT, Parser::parse_integer_literal);
         p.next_token();
         p.next_token();
         return p;
@@ -57,8 +57,29 @@ impl Parser {
         self.infix_parse_fns.insert(token, infix_fn);
     }
 
-    pub fn parse_identifier(&self) -> Box<dyn Expression> {
+    pub fn parse_identifier(&mut self) -> Box<dyn Expression> {
         return Box::new(Identifier{token: self.cur_token.clone(), value: self.cur_token.clone().unwrap().literal});
+    }
+
+
+    pub fn parse_integer_literal(&mut self) -> Box<dyn Expression> {
+        let mut lit = IntegerLiteral {
+            token: self.cur_token.clone().unwrap(),
+            value: None
+        };
+        
+        let value = match self.cur_token.clone().unwrap().literal.parse::<i64>() {
+            Ok(v) => Some(v),
+            Err(e) => {
+                let msg = format!("could not parse {:?} as integer", self.cur_token.clone().unwrap().literal);
+                self.errors.push(msg);
+                None
+            }
+        };
+        println!("{:?}", value.clone());
+
+        lit.value = value;
+        return Box::new(lit);
     }
 
     pub fn parse_program(&mut self) -> Program {
@@ -164,14 +185,16 @@ impl Parser {
     }
 
     
-    pub fn parse_expression(&self, precedence: u8) -> Option<Box<dyn Expression>> {
+    pub fn parse_expression(&mut self, precedence: u8) -> Option<Box<dyn Expression>> {
         if self.prefix_parse_fns.contains_key(self.cur_token.clone().unwrap().r#type) {
             return None;
         }
+        println!("{:?}", self.cur_token.clone().unwrap().r#type);
         let prefix = self.prefix_parse_fns[self.cur_token.clone().unwrap().r#type];
         let left_exp = prefix(self);
         return Some(left_exp);
     }
+
     
 
     pub fn is_cur_token(&self, t: TokenType) -> bool {

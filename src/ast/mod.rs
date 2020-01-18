@@ -1,5 +1,7 @@
 use crate::token::*;
 use std::clone::Clone;
+use std::any::Any;
+
 
 //TODO: Leave it until Rust supports multiple inheritance for Box<{any struct with interface}>
 /*
@@ -14,6 +16,8 @@ pub trait Statement {
     fn statement_node(&self);
     fn string(&self) -> String;
     fn box_clone(&self) -> Box<dyn Statement>;
+    fn type_name(&self) -> String;
+    fn to_any(&self) -> Box<dyn Any + 'static>;
 }
 
 /// Clone for trait object 
@@ -29,6 +33,8 @@ pub trait Expression {
     fn expression_node(&self);
     fn string(&self) -> String;
     fn box_clone(&self) -> Box<dyn Expression>;   
+    fn type_name(&self) -> String;
+    fn to_any(&self) -> Box<dyn Any + 'static>;
 }
 
 
@@ -64,6 +70,12 @@ impl Statement for Program {
     fn box_clone(&self) -> Box<dyn Statement> {
         Box::new((*self).clone())
     }
+    fn type_name(&self) -> String {
+        return type_of(&self);
+    }
+    fn to_any(&self) -> Box<dyn Any + 'static> {
+       Box::new((*self).clone())
+    }
 }
 
 
@@ -92,7 +104,14 @@ impl Statement for LetStatement {
     fn box_clone(&self) -> Box<dyn Statement> {
         Box::new((*self).clone())
     }
+    fn type_name(&self) -> String {
+        return type_of(&self);
+    }
+    fn to_any(&self) -> Box<dyn Any + 'static> {
+        Box::new((*self).clone())
+     }
 }
+
 
 /// Identifier, your variable name
 #[derive(Clone)]
@@ -112,6 +131,12 @@ impl Expression for Identifier {
     fn box_clone(&self) -> Box<dyn Expression> {
         Box::new((*self).clone())
     }
+    fn type_name(&self) -> String {
+        return type_of(&self);
+    }
+    fn to_any(&self) -> Box<dyn Any + 'static> {
+        Box::new((*self).clone())
+     }
 }
 
 // Return statement
@@ -139,7 +164,15 @@ impl Statement for ReturnStatement {
     fn box_clone(&self) -> Box<dyn Statement> {
         Box::new((*self).clone())
     }
+    fn type_name(&self) -> String {
+        return type_of(&self);
+    }
+    fn to_any(&self) -> Box<dyn Any + 'static> {
+        Box::new((*self).clone())
+     }
 }
+
+
 
 // Expression statement
 #[derive(Clone)]
@@ -162,4 +195,42 @@ impl Statement for ExpressionStatement {
     fn box_clone(&self) -> Box<dyn Statement> {
         Box::new((*self).clone())
     }
+    fn type_name(&self) -> String {
+        return type_of(&self);
+    }
+    fn to_any(&self) -> Box<dyn Any + 'static> {
+        Box::new((*self).clone())
+     }
+}
+
+
+
+/// Integer literal
+#[derive(Clone)]
+pub struct IntegerLiteral {
+    pub token: Token,
+    pub value: Option<i64>
+}
+
+impl Expression for IntegerLiteral {
+    fn token_literal(&self) -> String {
+        return self.token.clone().literal;
+    }
+    fn expression_node(&self) {}
+    fn string(&self) -> String {
+        return self.token.clone().literal;
+    }
+    fn box_clone(&self) -> Box<dyn Expression> {
+        Box::new((*self).clone())
+    }
+    fn type_name(&self) -> String {
+        return type_of(&self);
+    }
+    fn to_any(&self) -> Box<dyn Any + 'static> {
+        Box::new((*self).clone())
+    }
+}
+
+pub fn type_of<T>(_: &T) -> String {
+    format!("{}", std::any::type_name::<T>())
 }
