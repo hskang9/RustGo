@@ -6,14 +6,15 @@ mod tests {
   fn test_identifier_expression() {
       let input = "foobar;";
       let l = lexer::Lexer::new(input.to_string());
-      let mut p = parser::Parser::new(l);
-      p.parse_program();
-
-      check_parser_errors(p);
+      let p = parser::Parser::new(l);
+      
+    check_parser_errors(p);
   }
 
   #[test]
   fn test_integer_literal_expression() {
+    use crate::ast::Statement;
+    use crate::ast::Expression;
     let input = "5;";
     let l = lexer::Lexer::new(input.to_string());
     let mut p = parser::Parser::new(l);
@@ -25,43 +26,29 @@ mod tests {
         panic!("program has not enough statements. got={:?}", program.statements.len());
     }
  
-    let unwrap_statement = &program.statements[0].clone().to_any();
-    let stmt = match unwrap_statement.downcast_ref::<ast::ExpressionStatement>() {
-      Some(x) => {
-        x.clone()
-        println!("{:?}", x.clone().token_literal());
-      }
-      None => {
-        panic!("program.statements[0] is not ast::ExpressionStatement. got {:?}", program.statements[0].type_name())
-      }
-    };
-
-
-    let exp = match stmt.clone().expression {
-      Some(x) => {
-        x.clone()
-      }
-      None => {
-        panic!("Expression is not ast::IntegerLiteral. got {:?}", stmt.expression.type_name())
-      }
+    let stmt: ast::ExpressionStatement;
+    if let Ok(ok) = program.statements[0].to_any().downcast::<ast::ExpressionStatement>() {
+      stmt = *ok;
+    } else {
+      panic!("program.statements[0] is not ast::ExpressionStatement. got {:?}", program.statements[0].token_literal());
     }
-    
-    let literal = match exp.clone().unwrap().to_any().downcast_ref::<ast::IntegerLiteral>() {
-      Some(x) => {
-        x.clone()
-      }
-      None => {
-        panic!("Expression is not ast::IntegerLiteral. got {:?}", stmt.expression.type_name())
-      }
-    };
+
+    let literal: ast::IntegerLiteral;
+    if let Ok(ok) = stmt.expression.unwrap().to_any().downcast::<ast::IntegerLiteral>() {
+      literal = *ok;
+    } else {
+        panic!("Expression is not ast::IntegerLiteral. got {:?}", "None");
+    }
+   
 
     if literal.value != Some(5) {
         panic!("literal.value not {:?}. got={:?}", 5, literal.value); 
     }
-    use crate::ast::Expression;
+   
     if literal.token_literal() != "5" {
         panic!("literal.token_literal() not {:?}. got={:?}", "5", literal.token_literal()); 
     }
+  
   }
 
   fn check_parser_errors(p: parser::Parser) {
