@@ -76,7 +76,6 @@ impl Parser {
                 None
             }
         };
-        println!("{:?}", value.clone());
 
         lit.value = value;
         return Box::new(lit);
@@ -189,7 +188,6 @@ impl Parser {
         if !self.prefix_parse_fns.contains_key(self.cur_token.clone().unwrap().r#type) {
             return None;
         }
-        println!("{:?}", self.cur_token.clone().unwrap().r#type);
         let prefix = self.prefix_parse_fns[self.cur_token.clone().unwrap().r#type];
         let left_exp = prefix(self);
         return Some(left_exp);
