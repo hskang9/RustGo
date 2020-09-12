@@ -1,9 +1,9 @@
-# Namu
-Programming language for learning how to create one
+# RustGo
+Golang compiler frontend with Rust programming language
 
 # Credits
 
-Namu is based on rust implementation of making a programming language called "monkey" from the book "Writing an interpreter in Go" by Thorsten Ball.
+Most of the codes and methodology resemble "Writing an interpreter in Go" by Thorsten Ball.
 
 --- 
 # License
